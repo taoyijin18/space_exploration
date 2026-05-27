@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>星途探索 - 中国航天数据可视化平台</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background: linear-gradient(180deg, #0a0a1a 0%, #1a1a3e 50%, #0d1b2a 100%);
+            min-height: 100vh;
+            font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        /* 导航栏 */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(10, 10, 26, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 15px 50px;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(100, 150, 255, 0.2);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: #88ccff;
+            text-decoration: none;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            padding: 8px 15px;
+            border-radius: 20px;
+        }
+
+        .nav-links a:hover {
+            background: rgba(100, 150, 255, 0.2);
+            color: #fff;
+        }
+
+        .nav-links a.active {
+            background: rgba(100, 150, 255, 0.3);
+            color: #fff;
+        }
+
+        /* 英雄区域 */
+        .hero {
+            padding: 120px 50px 80px;
+            text-align: center;
+        }
+
+        .hero-title {
+            font-size: 56px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 0 0 30px rgba(100, 150, 255, 0.8);
+        }
+
+        .hero-subtitle {
+            font-size: 24px;
+            color: #88ccff;
+            margin-bottom: 40px;
+        }
+
+        /* 主内容区域 */
+        .main-content {
+            display: flex;
+            gap: 30px;
+            padding: 0 50px 50px;
+        }
+
+        /* 左侧任务面板 */
+        .task-panel {
+            width: 280px;
+            background: rgba(26, 26, 62, 0.8);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(100, 150, 255, 0.2);
+        }
+
+        .panel-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffd700;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(100, 150, 255, 0.2);
+        }
+
+        .mission-list {
+            list-style: none;
+        }
+
+        .mission-item {
+            padding: 15px;
+            margin-bottom: 10px;
+            background: rgba(10, 10, 26, 0.5);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .mission-item:hover {
+            background: rgba(100, 150, 255, 0.2);
+            border-left: 3px solid #60a5fa;
+        }
+
+        .mission-item.active {
+            background: rgba(100, 150, 255, 0.3);
+            border-left: 3px solid #ffd700;
+        }
+
+        .mission-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .mission-desc {
+            font-size: 12px;
+            color: #888;
+        }
+
+        /* 中间可视化区域 */
+        .visualization-area {
+            flex: 1;
+            background: rgba(26, 26, 62, 0.8);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(100, 150, 255, 0.2);
+            position: relative;
+        }
+
+        .canvas-container {
+            width: 100%;
+            height: 500px;
+            background: #0a0a1a;
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #space-canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .view-controls {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .view-btn {
+            padding: 8px 15px;
+            background: rgba(10, 10, 26, 0.8);
+            border: 1px solid rgba(100, 150, 255, 0.3);
+            border-radius: 8px;
+            color: #88ccff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 12px;
+        }
+
+        .view-btn.active {
+            background: rgba(100, 150, 255, 0.3);
+            color: #fff;
+        }
+
+        /* 右侧信息面板 */
+        .info-panel {
+            width: 320px;
+            background: rgba(26, 26, 62, 0.8);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(100, 150, 255, 0.2);
+        }
+
+        .detail-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #ffd700;
+            margin-bottom: 15px;
+        }
+
+        .detail-text {
+            color: #888;
+            font-size: 13px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .progress-section {
+            margin-bottom: 20px;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: rgba(10, 10, 26, 0.5);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4ade80, #22c55e);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .data-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .data-card {
+            background: rgba(10, 10, 26, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .data-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #60a5fa;
+        }
+
+        .data-label {
+            font-size: 11px;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        /* 展板区域 */
+        .showcase-section {
+            padding: 50px;
+        }
+
+        .showcase-title {
+            font-size: 32px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 40px;
+            color: #fff;
+        }
+
+        .showcase-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .showcase-card {
+            background: rgba(26, 26, 62, 0.8);
+            border-radius: 15px;
+            overflow: hidden;
+            border: 1px solid rgba(100, 150, 255, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .showcase-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(100, 150, 255, 0.2);
+            border-color: #60a5fa;
+        }
+
+        .showcase-image {
+            height: 200px;
+            background: linear-gradient(135deg, #1a1a3e, #0a0a2e);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .showcase-icon {
+            font-size: 60px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .showcase-content {
+            padding: 20px;
+        }
+
+        .showcase-card-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #ffd700;
+        }
+
+        .showcase-card-desc {
+            font-size: 13px;
+            color: #888;
+            line-height: 1.5;
+        }
+
+        .showcase-link {
+            display: inline-block;
+            margin-top: 15px;
+            color: #60a5fa;
+            text-decoration: none;
+            font-size: 13px;
+            transition: color 0.3s ease;
+        }
+
+        .showcase-link:hover {
+            color: #88ccff;
+        }
+
+        /* 页脚 */
+        .footer {
+            background: rgba(10, 10, 26, 0.9);
+            padding: 40px 50px;
+            text-align: center;
+            border-top: 1px solid rgba(100, 150, 255, 0.2);
+        }
+
+        .footer-text {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .footer-links a {
+            color: #666;
+            text-decoration: none;
+            font-size: 13px;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: #88ccff;
+        }
+
+        /* 星空背景 */
+        .stars-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, #ffffff, transparent),
+                radial-gradient(2px 2px at 40px 70px, #ffffcc, transparent),
+                radial-gradient(1px 1px at 90px 40px, #ffffff, transparent),
+                radial-gradient(2px 2px at 160px 120px, #ffffaa, transparent),
+                radial-gradient(1px 1px at 230px 80px, #ffffff, transparent);
+            background-repeat: repeat;
+            background-size: 300px 400px;
+            animation: twinkle 4s ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars-bg"></div>
+    
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="logo">🚀 星途探索</div>
+        <div class="nav-links">
+            <a href="index.html" class="active">首页</a>
+            <a href="missions.html">任务中心</a>
+            <a href="knowledge.html">航天知识</a>
+        </div>
+    </nav>
+
+    <!-- 英雄区域 -->
+    <section class="hero">
+        <h1 class="hero-title">星途探索</h1>
+        <p class="hero-subtitle">中国航天数据可视化平台</p>
+    </section>
+
+    <!-- 主内容区域 -->
+    <section class="main-content">
+        <!-- 左侧任务面板 -->
+        <aside class="task-panel">
+            <h3 class="panel-title">🚀 任务列表</h3>
+            <ul class="mission-list" id="mission-list">
+                <li class="mission-item active" data-mission="change-1">
+                    <div class="mission-name">嫦娥一号</div>
+                    <div class="mission-desc">绕月探测卫星</div>
+                </li>
+                <li class="mission-item" data-mission="change-2">
+                    <div class="mission-name">嫦娥二号</div>
+                    <div class="mission-desc">月球轨道探测器</div>
+                </li>
+                <li class="mission-item" data-mission="change-3">
+                    <div class="mission-name">嫦娥三号</div>
+                    <div class="mission-desc">月面软着陆</div>
+                </li>
+                <li class="mission-item" data-mission="tiangong">
+                    <div class="mission-name">天宫空间站</div>
+                    <div class="mission-desc">中国空间站</div>
+                </li>
+                <li class="mission-item" data-mission="tianwen">
+                    <div class="mission-name">天问一号</div>
+                    <div class="mission-desc">火星探测任务</div>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- 中间可视化区域 -->
+        <main class="visualization-area">
+            <div class="canvas-container">
+                <canvas id="space-canvas"></canvas>
+                <div class="view-controls">
+                    <button class="view-btn active" id="view-top">俯视</button>
+                    <button class="view-btn" id="view-side">侧视</button>
+                    <button class="view-btn" id="view-vr">VR视角</button>
+                </div>
+            </div>
+        </main>
+
+        <!-- 右侧信息面板 -->
+        <aside class="info-panel">
+            <h3 class="detail-title" id="detail-title">嫦娥一号</h3>
+            <p class="detail-text" id="detail-text">嫦娥一号是中国自主研制并发射的首个月球探测卫星，于2007年10月24日成功发射，标志着中国成为世界上第五个发射月球探测器的国家。</p>
+            
+            <div class="progress-section">
+                <div class="progress-label">
+                    <span>任务进度</span>
+                    <span id="progress-value">100%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill" style="width: 100%"></div>
+                </div>
+            </div>
+
+            <div class="data-grid">
+                <div class="data-card">
+                    <div class="data-value" id="data-speed">10.9 km/s</div>
+                    <div class="data-label">飞行速度</div>
+                </div>
+                <div class="data-card">
+                    <div class="data-value" id="data-altitude">200 km</div>
+                    <div class="data-label">轨道高度</div>
+                </div>
+                <div class="data-card">
+                    <div class="data-value" id="data-duration">16 月</div>
+                    <div class="data-label">任务时长</div>
+                </div>
+                <div class="data-card">
+                    <div class="data-value" id="data-status">已完成</div>
+                    <div class="data-label">任务状态</div>
+                </div>
+            </div>
+        </aside>
+    </section>
+
+    <!-- 展板区域 -->
+    <section class="showcase-section">
+        <h2 class="showcase-title">✨ 功能亮点</h2>
+        <div class="showcase-grid">
+            <div class="showcase-card" onclick="window.location.href='features.html#trajectory'">
+                <div class="showcase-image">
+                    <span class="showcase-icon">🚀</span>
+                </div>
+                <div class="showcase-content">
+                    <h3 class="showcase-card-title">实时轨迹演算</h3>
+                    <p class="showcase-card-desc">基于粒子系统的航天器轨迹实时演算，还原真实的飞行路径和轨道运动。</p>
+                    <span class="showcase-link">了解更多 →</span>
+                </div>
+            </div>
+            <div class="showcase-card" onclick="window.location.href='features.html#immersive'">
+                <div class="showcase-image">
+                    <span class="showcase-icon">🌌</span>
+                </div>
+                <div class="showcase-content">
+                    <h3 class="showcase-card-title">沉浸式体验</h3>
+                    <p class="showcase-card-desc">逼真的星空背景、动态音效和多视角切换，带来沉浸式太空探索体验。</p>
+                    <span class="showcase-link">体验一下 →</span>
+                </div>
+            </div>
+            <div class="showcase-card" onclick="window.location.href='features.html#knowledge'">
+                <div class="showcase-image">
+                    <span class="showcase-icon">📚</span>
+                </div>
+                <div class="showcase-content">
+                    <h3 class="showcase-card-title">航天知识库</h3>
+                    <p class="showcase-card-desc">丰富的航天知识科普，从基础概念到前沿技术，带你探索宇宙奥秘。</p>
+                    <span class="showcase-link">探索知识 →</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <p class="footer-text">© 2024 星途探索 - 中国航天数据可视化平台</p>
+        <div class="footer-links">
+            <a href="index.html">首页</a>
+            <a href="missions.html">任务中心</a>
+            <a href="knowledge.html">航天知识</a>
+        </div>
+    </footer>
+
+    <script>
+        // 当前选中的任务
+        let currentMission = 'change-1';
+        
+        // 任务数据
+        const missions = {
+            'change-1': {
+                name: '嫦娥一号',
+                desc: '嫦娥一号是中国自主研制并发射的首个月球探测卫星，于2007年10月24日成功发射，标志着中国成为世界上第五个发射月球探测器的国家。',
+                progress: 100,
+                speed: '10.9 km/s',
+                altitude: '200 km',
+                duration: '16 月',
+                status: '已完成',
+                type: 'moon-satellite',
+                color: '#87ceeb'
+            },
+            'change-2': {
+                name: '嫦娥二号',
+                desc: '嫦娥二号是中国第二颗月球探测卫星，于2010年10月1日发射，主要任务是为嫦娥三号验证关键技术并获取更高分辨率的月球表面影像。',
+                progress: 100,
+                speed: '11.2 km/s',
+                altitude: '100 km',
+                duration: '半年',
+                status: '已完成',
+                type: 'moon-satellite',
+                color: '#b0e0e6'
+            },
+            'change-3': {
+                name: '嫦娥三号',
+                desc: '嫦娥三号是中国首个月球软着陆探测器，于2013年12月2日发射，成功实现月面软着陆并释放玉兔号月球车，开展月面巡视探测。',
+                progress: 100,
+                speed: '10.8 km/s',
+                altitude: '月面',
+                duration: '31 月',
+                status: '已完成',
+                type: 'lander',
+                color: '#98fb98'
+            },
+            'tiangong': {
+                name: '天宫空间站',
+                desc: '天宫空间站是中国自主建造的永久性载人空间站，于2021年4月开始建造，目前已全面建成并投入运营，是中国航天事业的重要里程碑。',
+                progress: 100,
+                speed: '7.7 km/s',
+                altitude: '400 km',
+                duration: '长期',
+                status: '运行中',
+                type: 'station',
+                color: '#ffd700'
+            },
+            'tianwen': {
+                name: '天问一号',
+                desc: '天问一号是中国首次火星探测任务，于2020年7月23日发射，成功实现火星环绕、着陆和巡视探测，标志着中国成为世界上第二个成功着陆火星的国家。',
+                progress: 100,
+                speed: '24.1 km/s',
+                altitude: '火星表面',
+                duration: '持续中',
+                status: '运行中',
+                type: 'mars-rover',
+                color: '#cd5c5c'
+            }
+        };
+
+        // 切换任务
+        document.querySelectorAll('.mission-item').forEach(item => {
+            item.addEventListener('click', () => {
+                // 移除所有选中状态
+                document.querySelectorAll('.mission-item').forEach(i => i.classList.remove('active'));
+                // 添加当前选中状态
+                item.classList.add('active');
+                
+                // 获取任务数据
+                const missionId = item.dataset.mission;
+                const mission = missions[missionId];
+                
+                // 更新当前任务
+                currentMission = missionId;
+                
+                // 更新信息面板
+                document.getElementById('detail-title').textContent = mission.name;
+                document.getElementById('detail-text').textContent = mission.desc;
+                document.getElementById('progress-value').textContent = mission.progress + '%';
+                document.getElementById('progress-fill').style.width = mission.progress + '%';
+                document.getElementById('data-speed').textContent = mission.speed;
+                document.getElementById('data-altitude').textContent = mission.altitude;
+                document.getElementById('data-duration').textContent = mission.duration;
+                document.getElementById('data-status').textContent = mission.status;
+            });
+        });
+
+        // 动画时间
+        let animationTime = 0;
+        
+        // 太空画布绘制
+        function drawSpace() {
+            const canvas = document.getElementById('space-canvas');
+            const ctx = canvas.getContext('2d');
+            const rect = canvas.getBoundingClientRect();
+            
+            // 确保星星数据已生成
+            if (stars.length === 0) {
+                generateStars(rect.width, rect.height);
+            }
+            
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            
+            // 深空渐变背景
+            const gradient = ctx.createRadialGradient(
+                canvas.width / 2, canvas.height / 2, 0,
+                canvas.width / 2, canvas.height / 2, canvas.width * 0.8
+            );
+            gradient.addColorStop(0, '#1a1a3e');
+            gradient.addColorStop(0.5, '#0d0d2b');
+            gradient.addColorStop(1, '#050510');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 绘制星云效果
+            drawNebula(ctx, canvas.width, canvas.height);
+            
+            // 绘制星星
+            drawStars(ctx);
+            
+            // 生成和绘制流星
+            spawnMeteor(canvas.width, canvas.height);
+            drawMeteors(ctx);
+            
+            // 更新动画时间
+            animationTime += 0.016;
+            
+            // 根据视图模式绘制不同的场景
+            if (currentView === 'top') {
+                // 俯视图：从上方看太阳系
+                drawTopView(ctx, canvas.width, canvas.height);
+            } else if (currentView === 'side') {
+                // 侧视图：从侧面看
+                drawSideView(ctx, canvas.width, canvas.height);
+            } else if (currentView === 'vr') {
+                // VR视角：沉浸式视角
+                drawVRView(ctx, canvas.width, canvas.height);
+            }
+            
+            requestAnimationFrame(drawSpace);
+        }
+
+        // 俯视图绘制
+        function drawTopView(ctx, width, height) {
+            // 绘制太阳
+            const sunX = width * 0.15;
+            const sunY = height / 2;
+            ctx.fillStyle = '#ffd700';
+            ctx.beginPath();
+            ctx.arc(sunX, sunY, 25, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 太阳光晕
+            const sunGlow = ctx.createRadialGradient(sunX, sunY, 25, sunX, sunY, 80);
+            sunGlow.addColorStop(0, 'rgba(255, 215, 0, 0.3)');
+            sunGlow.addColorStop(1, 'transparent');
+            ctx.fillStyle = sunGlow;
+            ctx.beginPath();
+            ctx.arc(sunX, sunY, 80, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 绘制地球轨道
+            ctx.strokeStyle = 'rgba(100, 150, 255, 0.3)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.ellipse(width / 2, height / 2, 180, 100, 0, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            // 绘制地球
+            const earthX = width / 2;
+            const earthY = height / 2;
+            ctx.fillStyle = '#4a90d9';
+            ctx.beginPath();
+            ctx.arc(earthX, earthY, 35, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 地球大气层
+            const earthGlow = ctx.createRadialGradient(earthX, earthY, 35, earthX, earthY, 50);
+            earthGlow.addColorStop(0, 'rgba(74, 144, 217, 0.3)');
+            earthGlow.addColorStop(1, 'transparent');
+            ctx.fillStyle = earthGlow;
+            ctx.beginPath();
+            ctx.arc(earthX, earthY, 50, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 绘制月球轨道
+            ctx.strokeStyle = 'rgba(200, 200, 200, 0.2)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.ellipse(earthX, earthY, 80, 45, 0, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            // 绘制月球
+            const moonAngle = Date.now() / 2000;
+            const moonX = earthX + Math.cos(moonAngle) * 80;
+            const moonY = earthY + Math.sin(moonAngle) * 45;
+            ctx.fillStyle = '#e0e0e0';
+            ctx.beginPath();
+            ctx.arc(moonX, moonY, 12, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 绘制航天器
+            const craftAngle = Date.now() / 1500;
+            const craftX = earthX + Math.cos(craftAngle) * 100;
+            const craftY = earthY + Math.sin(craftAngle) * 55;
+            drawSpacecraft(ctx, craftX, craftY);
+        }
+
+        // 侧视图绘制
+        function drawSideView(ctx, width, height) {
+            // 绘制太阳
+            const sunX = width * 0.15;
+            const sunY = height / 2;
+            ctx.fillStyle = '#ffd700';
+            ctx.beginPath();
+            ctx.arc(sunX, sunY, 25, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 太阳光晕
+            const sunGlow = ctx.createRadialGradient(sunX, sunY, 25, sunX, sunY, 80);
+            sunGlow.addColorStop(0, 'rgba(255, 215, 0, 0.3)');
+            sunGlow.addColorStop(1, 'transparent');
+            ctx.fillStyle = sunGlow;
+            ctx.beginPath();
+            ctx.arc(sunX, sunY, 80, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 绘制地球轨道（侧视椭圆变成接近圆形）
+            ctx.strokeStyle = 'rgba(100, 150, 255, 0.3)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.ellipse(width / 2, height / 2, 180, 15, 0, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            // 绘制地球（在轨道上移动）
+            const earthAngle = Date.now() / 3000;
+            const earthX = width / 2 + Math.cos(earthAngle) * 180;
+            const earthY = height / 2 + Math.sin(earthAngle) * 15;
+            ctx.fillStyle = '#4a90d9';
+            ctx.beginPath();
+            ctx.arc(earthX, earthY, 35, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 地球大气层
+            const earthGlow = ctx.createRadialGradient(earthX, earthY, 35, earthX, earthY, 50);
+            earthGlow.addColorStop(0, 'rgba(74, 144, 217, 0.3)');
+            earthGlow.addColorStop(1, 'transparent');
+            ctx.fillStyle = earthGlow;
+            ctx.beginPath();
+            ctx.arc(earthX, earthY, 50, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 绘制月球（在地球上方）
+            const moonY = earthY - 60;
+            ctx.fillStyle = '#e0e0e0';
+            ctx.beginPath();
+            ctx.arc(earthX, moonY, 12, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 绘制航天器（在地球轨道上方）
+            const craftAngle = Date.now() / 1500;
+            const craftX = width / 2 + Math.cos(craftAngle) * 120;
+            const craftY = height / 2 + Math.sin(craftAngle) * 15 - 30;
+            drawSpacecraft(ctx, craftX, craftY);
+        }
+
+        // VR视角绘制
+        function drawVRView(ctx, width, height) {
+            // VR视角：更沉浸式，视角较低
+            
+            // 绘制远处的太阳
+            const sunX = width * 0.3;
+            const sunY = height * 0.2;
+            ctx.fillStyle = '#ffd700';
+            ctx.beginPath();
+            ctx.arc(sunX, sunY, 20, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 太阳光晕
+            const sunGlow = ctx.createRadialGradient(sunX, sunY, 20, sunX, sunY, 60);
+            sunGlow.addColorStop(0, 'rgba(255, 215, 0, 0.2)');
+            sunGlow.addColorStop(1, 'transparent');
+            ctx.fillStyle = sunGlow;
+            ctx.beginPath();
+            ctx.arc(sunX, sunY, 60, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 绘制地球（占据画面大部分）
+            const earthX = width * 0.7;
+            const earthY = height * 0.6;
+            const earthRadius = 80;
+            
+            // 地球主体
+            const earthGradient = ctx.createRadialGradient(earthX - 20, earthY - 20, 0, earthX, earthY, earthRadius);
+            earthGradient.addColorStop(0, '#60a5fa');
+            earthGradient.addColorStop(0.5, '#4a90d9');
+            earthGradient.addColorStop(1, '#1e40af');
+            ctx.fillStyle = earthGradient;
+            ctx.beginPath();
+            ctx.arc(earthX, earthY, earthRadius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 地球大气层
+            const earthGlow = ctx.createRadialGradient(earthX, earthY, earthRadius, earthX, earthY, earthRadius + 20);
+            earthGlow.addColorStop(0, 'rgba(74, 144, 217, 0.4)');
+            earthGlow.addColorStop(1, 'transparent');
+            ctx.fillStyle = earthGlow;
+            ctx.beginPath();
+            ctx.arc(earthX, earthY, earthRadius + 20, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 绘制月球（在远处）
+            ctx.fillStyle = '#e0e0e0';
+            ctx.beginPath();
+            ctx.arc(width * 0.25, height * 0.4, 15, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 绘制航天器（在前景，更大）
+            const craftX = width * 0.35;
+            const craftY = height * 0.7;
+            drawSpacecraft(ctx, craftX, craftY, 1.5);
+        }
+
+        // 绘制航天器
+        function drawSpacecraft(ctx, x, y, scale = 1) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.scale(scale, scale);
+            
+            const mission = missions[currentMission];
+            const color = mission ? mission.color : '#60a5fa';
+            const type = mission ? mission.type : 'moon-satellite';
+            
+            // 根据类型绘制不同的航天器
+            if (type === 'station') {
+                // 天宫空间站
+                // 主体
+                ctx.fillStyle = color;
+                ctx.fillRect(-30, -10, 60, 20);
+                
+                // 太阳能板
+                ctx.fillStyle = '#4a5568';
+                ctx.fillRect(-45, -5, 15, 10);
+                ctx.fillRect(30, -5, 15, 10);
+                
+                // 核心舱
+                ctx.fillStyle = '#fbbf24';
+                ctx.beginPath();
+                ctx.arc(0, 0, 12, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 对接节点
+                ctx.fillStyle = '#78716c';
+                ctx.fillRect(-3, -15, 6, 10);
+            } else if (type === 'lander') {
+                // 着陆器
+                // 着陆器主体
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.moveTo(0, -25);
+                ctx.lineTo(15, -5);
+                ctx.lineTo(15, 15);
+                ctx.lineTo(-15, 15);
+                ctx.lineTo(-15, -5);
+                ctx.closePath();
+                ctx.fill();
+                
+                // 着陆腿
+                ctx.strokeStyle = '#78716c';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(-10, 15);
+                ctx.lineTo(-20, 30);
+                ctx.moveTo(10, 15);
+                ctx.lineTo(20, 30);
+                ctx.stroke();
+                
+                // 仪器设备
+                ctx.fillStyle = '#fbbf24';
+                ctx.beginPath();
+                ctx.arc(0, -8, 6, 0, Math.PI * 2);
+                ctx.fill();
+            } else if (type === 'mars-rover') {
+                // 火星探测器
+                // 主体
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.ellipse(0, 0, 18, 12, 0, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 太阳能板
+                ctx.fillStyle = '#4a5568';
+                ctx.fillRect(-25, -5, 12, 15);
+                ctx.fillRect(13, -5, 12, 15);
+                
+                // 轮子
+                ctx.fillStyle = '#292524';
+                ctx.beginPath();
+                ctx.arc(-12, 12, 8, 0, Math.PI * 2);
+                ctx.arc(12, 12, 8, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 天线
+                ctx.strokeStyle = '#78716c';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(0, -10);
+                ctx.lineTo(0, -25);
+                ctx.moveTo(0, -20);
+                ctx.lineTo(-8, -15);
+                ctx.stroke();
+            } else {
+                // 月球卫星
+                // 航天器主体
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.moveTo(0, -20);
+                ctx.lineTo(12, 0);
+                ctx.lineTo(12, 25);
+                ctx.lineTo(-12, 25);
+                ctx.lineTo(-12, 0);
+                ctx.closePath();
+                ctx.fill();
+                
+                // 航天器窗户
+                ctx.fillStyle = '#87ceeb';
+                ctx.beginPath();
+                ctx.arc(0, -5, 6, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 太阳能板
+                ctx.fillStyle = '#4a5568';
+                ctx.fillRect(-20, 0, 8, 15);
+                ctx.fillRect(12, 0, 8, 15);
+            }
+            
+            // 引擎火焰（空间站除外）
+            if (type !== 'station') {
+                const flameGradient = ctx.createLinearGradient(0, 25, 0, 45);
+                flameGradient.addColorStop(0, '#ff6600');
+                flameGradient.addColorStop(0.5, '#ffcc00');
+                flameGradient.addColorStop(1, 'transparent');
+                ctx.fillStyle = flameGradient;
+                ctx.beginPath();
+                ctx.moveTo(-6, 25);
+                ctx.lineTo(0, 35 + Math.random() * 10);
+                ctx.lineTo(6, 25);
+                ctx.closePath();
+                ctx.fill();
+            }
+            
+            ctx.restore();
+        }
+
+        // 绘制星云效果
+        function drawNebula(ctx, width, height) {
+            // 紫色星云
+            const nebula1 = ctx.createRadialGradient(
+                width * 0.2, height * 0.3, 0,
+                width * 0.2, height * 0.3, width * 0.3
+            );
+            nebula1.addColorStop(0, 'rgba(138, 43, 226, 0.08)');
+            nebula1.addColorStop(0.5, 'rgba(138, 43, 226, 0.03)');
+            nebula1.addColorStop(1, 'rgba(138, 43, 226, 0)');
+            
+            ctx.fillStyle = nebula1;
+            ctx.fillRect(0, 0, width, height);
+            
+            // 蓝色星云
+            const nebula2 = ctx.createRadialGradient(
+                width * 0.8, height * 0.6, 0,
+                width * 0.8, height * 0.6, width * 0.25
+            );
+            nebula2.addColorStop(0, 'rgba(65, 105, 225, 0.06)');
+            nebula2.addColorStop(0.5, 'rgba(65, 105, 225, 0.02)');
+            nebula2.addColorStop(1, 'rgba(65, 105, 225, 0)');
+            
+            ctx.fillStyle = nebula2;
+            ctx.fillRect(0, 0, width, height);
+            
+            // 粉色星云
+            const nebula3 = ctx.createRadialGradient(
+                width * 0.6, height * 0.2, 0,
+                width * 0.6, height * 0.2, width * 0.2
+            );
+            nebula3.addColorStop(0, 'rgba(255, 105, 180, 0.04)');
+            nebula3.addColorStop(0.5, 'rgba(255, 105, 180, 0.01)');
+            nebula3.addColorStop(1, 'rgba(255, 105, 180, 0)');
+            
+            ctx.fillStyle = nebula3;
+            ctx.fillRect(0, 0, width, height);
+        }
+        
+        // 流星数据
+        let meteors = [];
+        
+        // 生成流星
+        function spawnMeteor(width, height) {
+            if (Math.random() < 0.002 && meteors.length < 3) {
+                meteors.push({
+                    x: Math.random() * width,
+                    y: -20,
+                    length: Math.random() * 80 + 40,
+                    speed: Math.random() * 15 + 10,
+                    angle: Math.PI / 4 + (Math.random() - 0.5) * 0.3,
+                    alpha: 1
+                });
+            }
+        }
+        
+        // 绘制流星
+        function drawMeteors(ctx) {
+            meteors = meteors.filter(m => m.y < ctx.canvas.height + 100);
+            
+            meteors.forEach(meteor => {
+                const tailX = meteor.x - Math.cos(meteor.angle) * meteor.length;
+                const tailY = meteor.y - Math.sin(meteor.angle) * meteor.length;
+                
+                const gradient = ctx.createLinearGradient(tailX, tailY, meteor.x, meteor.y);
+                gradient.addColorStop(0, 'rgba(255, 255, 255, 0)');
+                gradient.addColorStop(0.7, `rgba(200, 220, 255, ${meteor.alpha * 0.8})`);
+                gradient.addColorStop(1, `rgba(255, 255, 255, ${meteor.alpha})`);
+                
+                ctx.strokeStyle = gradient;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(tailX, tailY);
+                ctx.lineTo(meteor.x, meteor.y);
+                ctx.stroke();
+                
+                // 流星头部
+                ctx.fillStyle = `rgba(255, 255, 255, ${meteor.alpha})`;
+                ctx.beginPath();
+                ctx.arc(meteor.x, meteor.y, 2, 0, Math.PI * 2);
+                ctx.fill();
+                
+                meteor.x += Math.cos(meteor.angle) * meteor.speed;
+                meteor.y += Math.sin(meteor.angle) * meteor.speed;
+                meteor.alpha -= 0.005;
+            });
+        }
+        
+        // 绘制星星
+        function drawStars(ctx) {
+            stars.forEach(star => {
+                // 更明显的闪烁效果 - 结合正弦和随机闪烁
+                const baseTwinkle = Math.sin(animationTime * star.twinkleSpeed * 60 + star.phase);
+                const randomFactor = Math.random() * 0.3;
+                
+                // 大部分时间正常亮度，偶尔突然变亮或变暗
+                let twinkle;
+                if (baseTwinkle > 0.8) {
+                    // 突然变亮（超新星效果）
+                    twinkle = baseTwinkle * 1.5 + randomFactor;
+                } else if (baseTwinkle < -0.7) {
+                    // 突然变暗（遮挡效果）
+                    twinkle = baseTwinkle * 0.3;
+                } else {
+                    twinkle = baseTwinkle * 0.4 + 0.8;
+                }
+                
+                // 限制范围
+                twinkle = Math.max(0.1, Math.min(1.2, twinkle));
+                const alpha = star.brightness * twinkle;
+                
+                // 星星发光效果 - 根据亮度动态调整光晕大小
+                const glowSize = star.size * (3 + twinkle * 2);
+                const glow = ctx.createRadialGradient(
+                    star.x, star.y, 0,
+                    star.x, star.y, glowSize
+                );
+                glow.addColorStop(0, `rgba(${star.r}, ${star.g}, ${star.b}, ${alpha})`);
+                glow.addColorStop(0.3, `rgba(${star.r}, ${star.g}, ${star.b}, ${alpha * 0.6})`);
+                glow.addColorStop(0.6, `rgba(${star.r}, ${star.g}, ${star.b}, ${alpha * 0.2})`);
+                glow.addColorStop(1, `rgba(${star.r}, ${star.g}, ${star.b}, 0)`);
+                
+                ctx.fillStyle = glow;
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, glowSize, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 星星核心 - 更亮更清晰
+                ctx.fillStyle = `rgba(${star.r}, ${star.g}, ${star.b}, ${Math.min(1, alpha * 1.3)})`;
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.size * (0.8 + twinkle * 0.4), 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 偶尔添加十字光芒效果
+                if (twinkle > 1 && Math.random() > 0.7) {
+                    ctx.strokeStyle = `rgba(${star.r}, ${star.g}, ${star.b}, ${alpha * 0.5})`;
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(star.x - star.size * 4, star.y);
+                    ctx.lineTo(star.x + star.size * 4, star.y);
+                    ctx.moveTo(star.x, star.y - star.size * 4);
+                    ctx.lineTo(star.x, star.y + star.size * 4);
+                    ctx.stroke();
+                }
+            });
+        }
+        
+        // 当前视图模式
+        let currentView = 'top';
+        
+        // 星星数据 - 预生成更逼真的星星
+        let stars = [];
+        function generateStars(width, height) {
+            stars = [];
+            // 生成多层星星
+            for (let i = 0; i < 250; i++) {
+                const x = Math.random() * width;
+                const y = Math.random() * height;
+                // 不同层级的星星有不同的大小和亮度
+                const layer = Math.floor(Math.random() * 3);
+                let size, brightness, twinkleSpeed;
+                
+                if (layer === 0) {
+                    // 前景星星 - 较大较亮
+                    size = Math.random() * 2 + 1.2;
+                    brightness = Math.random() * 0.3 + 0.7;
+                    twinkleSpeed = Math.random() * 0.015 + 0.008;
+                } else if (layer === 1) {
+                    // 中层星星 - 中等大小
+                    size = Math.random() * 1.2 + 0.6;
+                    brightness = Math.random() * 0.25 + 0.4;
+                    twinkleSpeed = Math.random() * 0.01 + 0.004;
+                } else {
+                    // 背景星星 - 较小较暗
+                    size = Math.random() * 0.8 + 0.25;
+                    brightness = Math.random() * 0.15 + 0.15;
+                    twinkleSpeed = Math.random() * 0.008 + 0.002;
+                }
+                
+                // 统一白色星星
+                const r = 255;
+                const g = 255;
+                const b = 255;
+                
+                stars.push({
+                    x, y, size, brightness, twinkleSpeed,
+                    r, g, b,
+                    phase: Math.random() * Math.PI * 2
+                });
+            }
+        }
+        
+        // 视图切换
+        document.querySelectorAll('.view-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentView = btn.id.replace('view-', '');
+            });
+        });
+
+        // 初始化
+        window.addEventListener('DOMContentLoaded', drawSpace);
+    </script>
+</body>
+</html>

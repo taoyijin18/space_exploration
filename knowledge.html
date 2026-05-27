@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>星途探索 - 航天知识</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background: linear-gradient(180deg, #0a0a1a 0%, #1a1a3e 50%, #0d1b2a 100%);
+            min-height: 100vh;
+            font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(10, 10, 26, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 15px 50px;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(100, 150, 255, 0.2);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: #88ccff;
+            text-decoration: none;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            padding: 8px 15px;
+            border-radius: 20px;
+        }
+
+        .nav-links a:hover {
+            background: rgba(100, 150, 255, 0.2);
+            color: #fff;
+        }
+
+        .nav-links a.active {
+            background: rgba(100, 150, 255, 0.3);
+            color: #fff;
+        }
+
+        .hero {
+            padding: 100px 50px 40px;
+            text-align: center;
+        }
+
+        .hero-title {
+            font-size: 40px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-shadow: 0 0 20px rgba(100, 150, 255, 0.8);
+        }
+
+        .hero-subtitle {
+            font-size: 18px;
+            color: #88ccff;
+        }
+
+        /* 知识分类 */
+        .knowledge-categories {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            padding: 0 50px 40px;
+        }
+
+        .category-card {
+            background: rgba(26, 26, 62, 0.8);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid rgba(100, 150, 255, 0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(100, 150, 255, 0.2);
+            border-color: #60a5fa;
+        }
+        
+        .category-card.active {
+            background: rgba(96, 165, 250, 0.2);
+            border-color: #60a5fa;
+            box-shadow: 0 0 20px rgba(96, 165, 250, 0.4);
+        }
+
+        .category-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+
+        .category-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        .category-desc {
+            font-size: 13px;
+            color: #888;
+            line-height: 1.5;
+        }
+
+        /* 知识内容区域 */
+        .content-section {
+            padding: 0 50px 50px;
+        }
+
+        .section-title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            color: #ffd700;
+        }
+
+        /* 科普卡片 */
+        .knowledge-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+        }
+
+        .knowledge-card {
+            background: rgba(26, 26, 62, 0.8);
+            border-radius: 15px;
+            overflow: hidden;
+            border: 1px solid rgba(100, 150, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .knowledge-card:hover {
+            box-shadow: 0 15px 30px rgba(100, 150, 255, 0.2);
+        }
+
+        .knowledge-header {
+            padding: 25px;
+            border-bottom: 1px solid rgba(100, 150, 255, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .knowledge-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(100, 150, 255, 0.2);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+        }
+
+        .knowledge-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .knowledge-content {
+            padding: 25px;
+        }
+
+        .knowledge-text {
+            font-size: 14px;
+            color: #ccc;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .knowledge-facts {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .fact-item {
+            background: rgba(10, 10, 26, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .fact-label {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .fact-value {
+            font-size: 16px;
+            font-weight: bold;
+            color: #60a5fa;
+        }
+
+        /* 问答区域 */
+        .faq-section {
+            padding: 50px;
+            background: rgba(26, 26, 62, 0.5);
+        }
+
+        .faq-title {
+            font-size: 28px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 40px;
+            color: #ffd700;
+        }
+
+        .faq-list {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            margin-bottom: 20px;
+        }
+
+        .faq-question {
+            background: rgba(100, 150, 255, 0.15);
+            padding: 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .faq-question:hover {
+            background: rgba(100, 150, 255, 0.25);
+        }
+
+        .faq-question::after {
+            content: '+';
+            font-size: 24px;
+            color: #60a5fa;
+            transition: transform 0.3s ease;
+        }
+
+        .faq-item.active .faq-question::after {
+            transform: rotate(45deg);
+        }
+
+        .faq-answer {
+            display: none;
+            padding: 20px;
+            padding-top: 0;
+            color: #ccc;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .faq-item.active .faq-answer {
+            display: block;
+        }
+
+        /* 数据展示区 */
+        .data-showcase {
+            padding: 50px;
+        }
+
+        .data-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 25px;
+        }
+
+        .data-card {
+            background: rgba(26, 26, 62, 0.8);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            border: 1px solid rgba(100, 150, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .data-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #60a5fa, #ffd700);
+        }
+
+        .data-value {
+            font-size: 48px;
+            font-weight: bold;
+            color: #60a5fa;
+            margin-bottom: 10px;
+        }
+
+        .data-label {
+            font-size: 14px;
+            color: #888;
+        }
+
+        /* 星空背景 */
+        .stars-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, #ffffff, transparent),
+                radial-gradient(2px 2px at 40px 70px, #ffffcc, transparent);
+            background-repeat: repeat;
+            background-size: 300px 400px;
+        }
+
+        /* 页脚 */
+        .footer {
+            background: rgba(10, 10, 26, 0.9);
+            padding: 40px 50px;
+            text-align: center;
+            border-top: 1px solid rgba(100, 150, 255, 0.2);
+        }
+
+        .footer-text {
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="stars-bg"></div>
+    
+    <nav class="navbar">
+        <div class="logo">🚀 星途探索</div>
+        <div class="nav-links">
+            <a href="index.html">首页</a>
+            <a href="missions.html">任务中心</a>
+            <a href="knowledge.html" class="active">航天知识</a>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <h1 class="hero-title">航天知识库</h1>
+        <p class="hero-subtitle">探索宇宙奥秘，了解航天知识</p>
+    </section>
+
+    <!-- 知识分类 -->
+    <div class="knowledge-categories">
+        <div class="category-card">
+            <div class="category-icon">🌌</div>
+            <div class="category-title">宇宙探索</div>
+            <div class="category-desc">了解宇宙的起源、演化和未来</div>
+        </div>
+        <div class="category-card">
+            <div class="category-icon">🚀</div>
+            <div class="category-title">火箭技术</div>
+            <div class="category-desc">探索火箭的原理与发展历程</div>
+        </div>
+        <div class="category-card">
+            <div class="category-icon">🛰️</div>
+            <div class="category-title">卫星系统</div>
+            <div class="category-desc">了解各类卫星的功能与应用</div>
+        </div>
+        <div class="category-card">
+            <div class="category-icon">👨‍🚀</div>
+            <div class="category-title">航天员</div>
+            <div class="category-desc">揭秘航天员的训练与生活</div>
+        </div>
+    </div>
+
+    <!-- 知识内容区域 -->
+    <section class="content-section">
+        <h2 class="section-title">📚 科普知识</h2>
+        
+        <div class="knowledge-grid">
+            <div class="knowledge-card">
+                <div class="knowledge-header">
+                    <div class="knowledge-icon">🌙</div>
+                    <div>
+                        <div class="knowledge-title">月球探索</div>
+                    </div>
+                </div>
+                <div class="knowledge-content">
+                    <p class="knowledge-text">月球是地球唯一的天然卫星，距离地球约38.4万公里。中国的嫦娥探月工程分为"绕、落、回"三个阶段，成功实现了月球探测的重大突破。月球表面覆盖着一层由岩石碎屑和尘土组成的月壤，蕴含着丰富的氦-3等宝贵资源。</p>
+                    <div class="knowledge-facts">
+                        <div class="fact-item">
+                            <div class="fact-label">月球直径</div>
+                            <div class="fact-value">3474公里</div>
+                        </div>
+                        <div class="fact-item">
+                            <div class="fact-label">月球质量</div>
+                            <div class="fact-value">7.3×10²²kg</div>
+                        </div>
+                        <div class="fact-item">
+                            <div class="fact-label">公转周期</div>
+                            <div class="fact-value">27.3天</div>
+                        </div>
+                        <div class="fact-item">
+                            <div class="fact-label">表面温度</div>
+                            <div class="fact-value">-180~150°C</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="knowledge-card">
+                <div class="knowledge-header">
+                    <div class="knowledge-icon">🔴</div>
+                    <div>
+                        <div class="knowledge-title">火星探测</div>
+                    </div>
+                </div>
+                <div class="knowledge-content">
+                    <p class="knowledge-text">火星是太阳系中与地球最相似的行星，被称为"红色星球"。中国的天问一号任务成功实现了火星环绕、着陆和巡视探测。火星拥有太阳系最大的火山和峡谷，其两极覆盖着水冰和干冰组成的极冠。</p>
+                    <div class="knowledge-facts">
+                        <div class="fact-item">
+                            <div class="fact-label">火星直径</div>
+                            <div class="fact-value">6779公里</div>
+                        </div>
+                        <div class="fact-item">
+                            <div class="fact-label">距离地球</div>
+                            <div class="fact-value">5500万公里</div>
+                        </div>
+                        <div class="fact-item">
+                            <div class="fact-label">公转周期</div>
+                            <div class="fact-value">687天</div>
+                        </div>
+                        <div class="fact-item">
+                            <div class="fact-label">一天时长</div>
+                            <div class="fact-value">24.6小时</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="knowledge-card">
+                <div class="knowledge-header">
+                    <div class="knowledge-icon">🏠</div>
+                    <div>
+                        <div class="knowledge-title">空间站</div>
+                    </div>
+                </div>
+                <div class="knowledge-content">
+                    <p class="knowledge-text">空间站是人类在太空中的永久性研究平台。中国天宫空间站由天和核心舱、问天实验舱、梦天实验舱组成，可容纳3-6名航天员长期驻留。空间站配备了多种科学实验柜，开展空间生命科学、材料科学等研究。</p>
+                    <div class="knowledge-facts">
+                        <div class="fact-item">
+                            <div class="fact-label">总重量</div>
+                            <div class="fact-value">约180吨</div>
+                        </div>
+                        <div class="fact-item">
+                            <div class="fact-label">轨道高度</div>
+                            <div class="fact-value">400公里</div>
+                        </div>
+                        <div class="fact-item">
+                            <div class="fact-label">设计寿命</div>
+                            <div class="fact-value">10年以上</div>
+                        </div>
+                        <div class="fact-item">
+                            <div class="fact-label">舱段数量</div>
+                            <div class="fact-value">3个</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="knowledge-card">
+                <div class="knowledge-header">
+                    <div class="knowledge-icon">⚡</div>
+                    <div>
+                        <div class="knowledge-title">火箭推进</div>
+                    </div>
+                </div>
+                <div class="knowledge-content">
+                    <p class="knowledge-text">火箭是实现太空飞行的关键工具，其原理基于牛顿第三定律。中国的长征系列运载火箭采用液体燃料和固体燃料相结合的推进方式，能够将各种载荷送入不同轨道。火箭发射需要克服地球引力，达到第一宇宙速度约7.9公里/秒才能进入轨道。</p>
+                    <div class="knowledge-facts">
+                        <div class="fact-item">
+                            <div class="fact-label">第一宇宙速度</div>
+                            <div class="fact-value">7.9 km/s</div>
+                        </div>
+                        <div class="fact-item">
+                            <div class="fact-label">第二宇宙速度</div>
+                            <div class="fact-value">11.2 km/s</div>
+                        </div>
+                        <div class="fact-item">
+                            <div class="fact-label">长征火箭</div>
+                            <div class="fact-value">500+次发射</div>
+                        </div>
+                        <div class="fact-item">
+                            <div class="fact-label">成功率</div>
+                            <div class="fact-value">96%+</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="knowledge-card">
+                <div class="knowledge-header">
+                    <div class="knowledge-icon">🛰️</div>
+                    <div>
+                        <div class="knowledge-title">卫星系统</div>
+                    </div>
+                </div>
+                <div class="knowledge-content">
+                    <p class="knowledge-text">卫星是环绕地球运行的人造天体，广泛应用于通信、导航、气象、遥感等领域。中国的北斗卫星导航系统是全球四大卫星导航系统之一，由55颗卫星组成，提供高精度、高可靠的定位、导航和授时服务。</p>
+                    <div class="knowledge-facts">
+                        <div class="fact-item">
+                            <div class="fact-label">北斗卫星数</div>
+                            <div class="fact-value">55颗</div>
+                        </div>
+                        <div class="fact-item">
+                            <div class="fact-label">覆盖范围</div>
+                            <div class="fact-value">全球</div>
+                        </div>
+                        <div class="fact-item">
+                            <div class="fact-label">定位精度</div>
+                            <div class="fact-value">厘米级</div>
+                        </div>
+                        <div class="fact-item">
+                            <div class="fact-label">服务类型</div>
+                            <div class="fact-value">导航授时</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="knowledge-card">
+                <div class="knowledge-header">
+                    <div class="knowledge-icon">👨‍🚀</div>
+                    <div>
+                        <div class="knowledge-title">航天员</div>
+                    </div>
+                </div>
+                <div class="knowledge-content">
+                    <p class="knowledge-text">航天员是执行太空任务的专业人员，需要经过严格的选拔和训练。中国航天员需要掌握航天知识、体能训练、应急处理等多项技能。截至目前，中国已有14名航天员进入太空，完成了多次载人航天任务。</p>
+                    <div class="knowledge-facts">
+                        <div class="fact-item">
+                            <div class="fact-label">航天员人数</div>
+                            <div class="fact-value">14人</div>
+                        </div>
+                        <div class="fact-item">
+                            <div class="fact-label">出舱次数</div>
+                            <div class="fact-value">10+次</div>
+                        </div>
+                        <div class="fact-item">
+                            <div class="fact-label">最长驻留</div>
+                            <div class="fact-value">183天</div>
+                        </div>
+                        <div class="fact-item">
+                            <div class="fact-label">女航天员</div>
+                            <div class="fact-value">3人</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 数据展示区 -->
+    <section class="data-showcase">
+        <h2 class="section-title" style="text-align: center; margin-bottom: 30px;">📊 中国航天数据</h2>
+        <div class="data-cards">
+            <div class="data-card">
+                <div class="data-value">500+</div>
+                <div class="data-label">火箭发射次数</div>
+            </div>
+            <div class="data-card">
+                <div class="data-value">55</div>
+                <div class="data-label">北斗卫星数量</div>
+            </div>
+            <div class="data-card">
+                <div class="data-value">14</div>
+                <div class="data-label">航天员人数</div>
+            </div>
+            <div class="data-card">
+                <div class="data-value">3</div>
+                <div class="data-label">探月阶段</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ区域 -->
+    <section class="faq-section">
+        <h2 class="faq-title">❓ 常见问题</h2>
+        <div class="faq-list">
+            <div class="faq-item">
+                <div class="faq-question">为什么火箭要垂直发射？</div>
+                <div class="faq-answer">火箭垂直发射可以在最短时间内穿过大气层，减少空气阻力的影响。垂直发射还能使火箭在发射初期获得最大的推力，快速突破地球引力。此外，垂直发射便于火箭姿态控制，确保发射安全。</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">航天员在太空中如何生活？</div>
+                <div class="faq-answer">航天员在太空中的生活与地面有很大不同。他们需要在失重环境下进行日常活动，如吃饭、睡觉、锻炼等。空间站配备了特殊的设备，如睡袋、跑步机、太空厨房等，帮助航天员适应太空生活。航天员还需要定期进行体检和科学实验。</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">为什么月球总是一面朝向地球？</div>
+                <div class="faq-answer">这是由于月球的自转周期和公转周期相同，都是约27.3天。这种现象称为"潮汐锁定"，是地球对月球的引力作用导致的。潮汐锁定使得月球的同一面始终朝向地球，而另一面则永远背向地球。</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">火星为什么是红色的？</div>
+                <div class="faq-answer">火星表面呈现红色是因为其土壤中含有大量的氧化铁（铁锈）。这些氧化铁颗粒在阳光照射下呈现出红色或橙红色。火星的大气层也会散射蓝光，使得从地球看火星呈现红色。</div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <p class="footer-text">© 2024 星途探索 - 中国航天数据可视化平台</p>
+    </footer>
+
+    <script>
+        // 分类筛选功能
+        document.addEventListener('DOMContentLoaded', () => {
+            const categoryCards = document.querySelectorAll('.category-card');
+            const knowledgeCards = document.querySelectorAll('.knowledge-card');
+            
+            // 为知识卡片添加分类属性
+            const categoryMap = {
+                'cosmos': ['月球探索', '火星探测', '空间站'],
+                'rocket': ['火箭推进'],
+                'satellite': ['卫星系统'],
+                'astronaut': ['航天员']
+            };
+            
+            // 初始化：为每个知识卡片添加data-category属性
+            knowledgeCards.forEach(card => {
+                const title = card.querySelector('.knowledge-title').textContent;
+                for (const [category, titles] of Object.entries(categoryMap)) {
+                    if (titles.includes(title)) {
+                        card.dataset.category = category;
+                        break;
+                    }
+                }
+            });
+            
+            // 默认选中第一个分类卡片（宇宙探索）
+            categoryCards[0].classList.add('active');
+            
+            // 分类卡片点击事件
+            categoryCards.forEach((card, index) => {
+                const categories = ['cosmos', 'rocket', 'satellite', 'astronaut'];
+                card.dataset.category = categories[index];
+                
+                card.addEventListener('click', () => {
+                    // 移除所有分类卡片的选中状态
+                    categoryCards.forEach(c => c.classList.remove('active'));
+                    // 添加当前选中状态
+                    card.classList.add('active');
+                    
+                    const selectedCategory = card.dataset.category;
+                    
+                    // 显示/隐藏知识卡片
+                    knowledgeCards.forEach(kCard => {
+                        if (kCard.dataset.category === selectedCategory) {
+                            kCard.style.display = 'block';
+                        } else {
+                            kCard.style.display = 'none';
+                        }
+                    });
+                });
+            });
+        });
+        
+        // FAQ交互
+        document.querySelectorAll('.faq-question').forEach(question => {
+            question.addEventListener('click', () => {
+                const parent = question.parentElement;
+                parent.classList.toggle('active');
+            });
+        });
+    </script>
+</body>
+</html>
